@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class Enemys : MonoBehaviour
 {
     //enemyType
-    public enum Type { A, B, C};
+    public enum Type { A, B, C, D};
     public Type enemyType;
 
     //enement body
@@ -15,7 +15,8 @@ public class Enemys : MonoBehaviour
     Rigidbody rigid;
     BoxCollider boxCollider;
 
-    Material material;
+    //Material material;
+    MeshRenderer[] meshs;
 
     //attack target
     public Transform target;
@@ -33,16 +34,17 @@ public class Enemys : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody>();
         boxCollider = GetComponent<BoxCollider>();
-        material = GetComponentInChildren<MeshRenderer>().material;
+        meshs = GetComponentsInChildren<MeshRenderer>();
         nav = GetComponent<NavMeshAgent>();
         anim = GetComponentInChildren<Animator>();
 
-        Invoke("ChaseStart", 2f);
+        if(enemyType != Type.D)
+            Invoke("ChaseStart", 2f);
     }
 
     void Update()
     {
-        if (nav.enabled)
+        if (nav.enabled && enemyType != Type.D)
         {
             nav.SetDestination(target.position);
             nav.isStopped = !isChase;
@@ -52,7 +54,7 @@ public class Enemys : MonoBehaviour
     void FixedUpdate()
     {
         FreezeVelocity();
-        targgeting();
+        targeting();
     }
 
     void FreezeVelocity()
@@ -66,8 +68,11 @@ public class Enemys : MonoBehaviour
         }
     }
 
-    void targgeting()
+    void targeting()
     {
+        if (enemyType == Type.D)
+            return;
+
         float targetRadius = 0f;
         float tagetRange = 0f;
 
@@ -128,7 +133,7 @@ public class Enemys : MonoBehaviour
 
             case Type.C:
                 yield return new WaitForSeconds(0.5f);
-                GameObject instantBullet = Instantiate(bullet, transform.position, transform.rotation);
+                GameObject instantBullet = Instantiate(bullet, transform.position + new Vector3(0,2,0), transform.rotation);
                 Rigidbody rigidBullet = instantBullet.GetComponent<Rigidbody>();
                 rigidBullet.velocity = transform.forward * 20;
 
@@ -188,16 +193,22 @@ public class Enemys : MonoBehaviour
 
     IEnumerator OnDamage(Vector3 reactVec, bool isGrenade)
     {
-        material.color = Color.red;
+
+        foreach(MeshRenderer mesh in meshs)
+            mesh.material.color = Color.red;
+
+
         yield return new WaitForSeconds(0.1f);
 
         if (currHealth > 0)
         {
-            material.color = Color.white;
+            foreach (MeshRenderer mesh in meshs)
+                mesh.material.color = Color.white;
         }
         else
         {
-            material.color = Color.grey;
+            foreach (MeshRenderer mesh in meshs)
+                mesh.material.color = Color.gray;
             gameObject.layer = 14;
 
             anim.SetTrigger("doDie");
@@ -224,7 +235,8 @@ public class Enemys : MonoBehaviour
                 rigid.AddForce(reactVec * 5, ForceMode.Impulse);
             }
 
-            Destroy(gameObject, 4);
+            if(enemyType != Type.D)
+                Destroy(gameObject, 4);
         }
     }
 
