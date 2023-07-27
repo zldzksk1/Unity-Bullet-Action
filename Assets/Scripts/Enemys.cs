@@ -12,23 +12,25 @@ public class Enemys : MonoBehaviour
     //enement body
     public int maxHealth;
     public int currHealth;
-    Rigidbody rigid;
-    BoxCollider boxCollider;
+    public Rigidbody rigid;
+    public BoxCollider boxCollider;
 
     //Material material;
-    MeshRenderer[] meshs;
+    public MeshRenderer[] meshs;
 
     //attack target
     public Transform target;
-    NavMeshAgent nav;
+    public NavMeshAgent nav;
 
-    Animator anim;
-    bool isChase;
+    public Animator anim;
+    public bool isChase;
 
     //enemy attack style
     public BoxCollider meleeArea;
     public GameObject bullet;
     public bool isAttack;
+
+    public bool isDead;
 
     private void Awake()
     {
@@ -70,7 +72,7 @@ public class Enemys : MonoBehaviour
 
     void targeting()
     {
-        if (enemyType == Type.D)
+        if (isDead || enemyType == Type.D)
             return;
 
         float targetRadius = 0f;
@@ -133,7 +135,7 @@ public class Enemys : MonoBehaviour
 
             case Type.C:
                 yield return new WaitForSeconds(0.5f);
-                GameObject instantBullet = Instantiate(bullet, transform.position + new Vector3(0,2,0), transform.rotation);
+                GameObject instantBullet = Instantiate(bullet, transform.position, transform.rotation);
                 Rigidbody rigidBullet = instantBullet.GetComponent<Rigidbody>();
                 rigidBullet.velocity = transform.forward * 20;
 
@@ -215,6 +217,7 @@ public class Enemys : MonoBehaviour
             anim.SetBool("isWalk", false);
             isChase = false;
             nav.enabled = false;
+            isDead = true;
 
             if (isGrenade)
             {
