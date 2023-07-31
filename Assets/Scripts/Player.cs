@@ -24,18 +24,19 @@ public class Player : MonoBehaviour
     bool isBorder;
 
     //player attack key
-    bool fDown;
+    bool fDown; //attack
     float fireDelay = 0;
     bool isFireReady = true;
+    bool gDown; //grenade
 
-    bool gDown;
-
-    bool rDown;
+    bool rDown; //reload gun
     bool isReload;
+
+    bool isShop;
 
     //weapon key
     GameObject nearByItem;
-    Weapons equipWeapon;
+    public Weapons equipWeapon;
     int equipWeaponIdx = -1;
     public GameObject[] weapons;
     public bool[] hasWeapons;
@@ -44,6 +45,8 @@ public class Player : MonoBehaviour
     bool sDown1;
     bool sDown2;
     bool sDown3;
+
+    public int score;
 
     public int ammo;
     public int maxAmmo;
@@ -67,6 +70,8 @@ public class Player : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
         meshs = GetComponentsInChildren<MeshRenderer>();
+
+        PlayerPrefs.SetInt("BestScore", 100);
     }
 
     // Start is called before the first frame update
@@ -178,7 +183,7 @@ public class Player : MonoBehaviour
         fireDelay += Time.deltaTime;
         isFireReady = equipWeapon.rate < fireDelay;
 
-        if (fDown && isFireReady && !isDodge && !isSwap)
+        if (fDown && isFireReady && !isDodge && !isSwap && !isShop)
         {
             equipWeapon.Use();
             anim.SetTrigger(equipWeapon.type == Weapons.Type.Melee ? "doSwing" : "doShot");
@@ -285,7 +290,7 @@ public class Player : MonoBehaviour
                 equipWeapon.gameObject.SetActive(false);
 
             equipWeaponIdx = weaponIdx;
-            Debug.Log(weapons);
+            // Debug.Log(weapons);
             equipWeapon = weapons[weaponIdx].GetComponent<Weapons>();
             equipWeapon.gameObject.SetActive(true);
 
@@ -314,6 +319,13 @@ public class Player : MonoBehaviour
 
                 Destroy(nearByItem);
             }
+
+            else if (nearByItem.tag == "Shop")
+            {
+                isShop = true;
+                Shop shop = nearByItem.GetComponent<Shop>();
+                shop.Enter(this);
+            }
         }
     }
 
@@ -328,11 +340,12 @@ public class Player : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == "Weapon")
+        if (other.tag == "Weapon" || other.tag == "Shop")
         {
             nearByItem = other.gameObject;
-            Debug.Log(nearByItem.name);
+            //Debug.Log(nearByItem.name);
         }
+
 
     }
 
@@ -340,6 +353,13 @@ public class Player : MonoBehaviour
     {
         if (other.tag == "Weapobn")
             nearByItem = null;
+        else if (other.tag == "Shop")
+        {
+            Shop shop = nearByItem.GetComponent<Shop>();
+            shop.Exit();
+            isShop = false;
+            nearByItem = null;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
