@@ -3,22 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public GameObject menuCam;
     public GameObject gameCam;
     public Player player;
-    public Boss boss;
+    public Boss boss = null;
     public int stage;
     public float playTime;
     public bool isBattle;
     public int enemyCountA;
     public int enemyCountB;
     public int enemyCountC;
+    public int enemyCountD;
+    public int totalEnemies = 0;
 
     public GameObject menuPanel;
     public GameObject gamePanel;
+    public GameObject overPanel;
+    public TMP_Text currScoreText;
+    public TMP_Text bestScoreNotiText;
     public TMP_Text bestScoreTxt;
     public TMP_Text scoreTxt;
     public TMP_Text stageTxt;
@@ -36,8 +42,18 @@ public class GameManager : MonoBehaviour
     public RectTransform bossHealthGroup;
     public RectTransform bossHealthBar;
 
+    public GameObject itemShop;
+    public GameObject weaponShop;
+    public GameObject stageZone;
+
+    //
+    public Transform[] enemyZones;
+    public GameObject[] enemies;
+    public List<int> enemyList;
+
     void Awake()
     {
+        enemyList = new List<int>();
         bestScoreTxt.text = string.Format("{0:n0}", PlayerPrefs.GetInt("BestScore"));    
     }
 
@@ -102,8 +118,152 @@ public class GameManager : MonoBehaviour
         EnemyTxtC.text = enemyCountC.ToString();
 
         //boss healthbar indicator
-        bossHealthBar.localScale = new Vector3((float)boss.currHealth / boss.maxHealth, 1, 1);
+        if (boss != null)
+        {
+            bossHealthGroup.anchoredPosition = Vector3.down * 30;
+            bossHealthBar.localScale = new Vector3((float)boss.currHealth / boss.maxHealth, 1, 1);
+        }
+        else
+        {
+            bossHealthGroup.anchoredPosition = Vector3.up * 300;
+        }
+
     }
 
+    public void StageStart()
+    {
+        itemShop.SetActive(false);
+        weaponShop.SetActive(false);
+        stageZone.SetActive(false);
 
+        foreach (Transform zone in enemyZones)
+        {
+            zone.gameObject.SetActive(true);
+        }
+
+        isBattle = true;
+        StartCoroutine(InBattle());
+    }
+
+    public void StageEnd()
+    {
+        player.transform.position = Vector3.up * 0.8f;
+        itemShop.SetActive(true);
+        weaponShop.SetActive(true);
+        stageZone.SetActive(true);
+
+        foreach (Transform zone in enemyZones)
+        {
+            zone.gameObject.SetActive(false);
+        }
+
+        isBattle = false;
+        stage++;
+    }
+
+    public void GameOver()
+    {
+        gamePanel.SetActive(false);
+        overPanel.SetActive(true);
+        currScoreText.text = scoreTxt.text;
+
+        int bestScore = PlayerPrefs.GetInt("BestScore");
+        if (player.score > bestScore)
+        {
+            bestScoreNotiText.gameObject.SetActive(true);
+            PlayerPrefs.SetInt("BestScore", bestScore);
+        }
+
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    IEnumerator InBattle()
+    {
+        //enemy create
+ 
+        if (stage % 5 == 0)
+        {
+            enemyCountD++;
+            totalEnemies++;
+
+            GameObject instantEnemy = Instantiate(enemies[3], enemyZones[0].position, enemyZones[0].rotation);
+            Enemies enemy = instantEnemy.GetComponent<Enemies>();
+            enemy.manager = this;
+
+            enemy.target = player.transform;
+            boss = instantEnemy.GetComponent<Boss>();
+        }
+        else
+        {
+            for (int index = 0; index < stage; index++)
+            {
+                int ran = Random.Range(0, 3);
+                enemyList.Add(ran);
+
+                switch (ran)
+                {
+                    case 0:
+                        enemyCountA++;
+                        totalEnemies++;
+                        break;
+                    case 1:
+                        enemyCountB++;
+                        totalEnemies++;
+                        break;
+                    case 2:
+                        enemyCountC++;
+                        totalEnemies++;
+                        break;
+                }
+            }
+
+            //instatiate on map
+            while (enemyList.Count > 0)
+            {
+                int ranZon = Random.Range(0, 4);
+                GameObject instantEnemy = Instantiate(enemies[enemyList[0]], enemyZones[ranZon].position, enemyZones[ranZon].rotation);
+
+                Enemies enemy = instantEnemy.GetComponent<Enemies>();
+                enemy.target = player.transform;
+                enemy.manager = this;
+                enemyList.RemoveAt(0);
+                yield return new WaitForSeconds(4f);
+            }
+
+        }
+
+        while (totalEnemies > 0)
+        {
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(4f);
+        boss = null;
+        StageEnd();
+    }
+
+    public void countKill(Enemies.Type type)
+    {
+        switch (type)
+        {
+            case Enemies.Type.A:
+                enemyCountA--;
+                break;
+            case Enemies.Type.B:
+                enemyCountB--;
+                break;
+            case Enemies.Type.C:
+                enemyCountC--;
+                break;
+            case Enemies.Type.D:
+                enemyCountD--;
+                break;
+        }
+
+        totalEnemies--;
+    }
 }

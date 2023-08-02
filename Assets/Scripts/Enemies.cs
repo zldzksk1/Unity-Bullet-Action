@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemys : MonoBehaviour
+public class Enemies : MonoBehaviour
 {
+    public GameManager manager;
+
     //enemyType
     public enum Type { A, B, C, D};
     public Type enemyType;
@@ -14,6 +16,10 @@ public class Enemys : MonoBehaviour
     public int currHealth;
     public Rigidbody rigid;
     public BoxCollider boxCollider;
+
+    //enemy score and rewards
+    public int point;
+    public GameObject[] coins;
 
     //Material material;
     public MeshRenderer[] meshs;
@@ -180,7 +186,6 @@ public class Enemys : MonoBehaviour
             Vector3 reactVec = transform.position - other.transform.position;
             Destroy(other.gameObject);
 
-
             StartCoroutine(OnDamage(reactVec, false));
 
         }
@@ -199,25 +204,35 @@ public class Enemys : MonoBehaviour
         foreach(MeshRenderer mesh in meshs)
             mesh.material.color = Color.red;
 
-
-        yield return new WaitForSeconds(0.1f);
-
         if (currHealth > 0)
         {
+            yield return new WaitForSeconds(0.1f);
+
             foreach (MeshRenderer mesh in meshs)
                 mesh.material.color = Color.white;
+
+
         }
         else
         {
             foreach (MeshRenderer mesh in meshs)
                 mesh.material.color = Color.gray;
+
             gameObject.layer = 14;
+
+            Player player = target.GetComponent<Player>();
+            player.score += point;
+
+            int ranCoin = Random.Range(0, 3);
+            Instantiate(coins[ranCoin], transform.position, Quaternion.identity);
 
             anim.SetTrigger("doDie");
             anim.SetBool("isWalk", false);
             isChase = false;
             nav.enabled = false;
             isDead = true;
+
+            manager.countKill(enemyType);
 
             if (isGrenade)
             {
@@ -238,8 +253,7 @@ public class Enemys : MonoBehaviour
                 rigid.AddForce(reactVec * 5, ForceMode.Impulse);
             }
 
-            if(enemyType != Type.D)
-                Destroy(gameObject, 4);
+            Destroy(gameObject, 4);
         }
     }
 

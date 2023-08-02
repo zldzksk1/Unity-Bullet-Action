@@ -29,13 +29,18 @@ public class Shop : MonoBehaviour
     public void Exit()
     {
         anim.SetTrigger("doHello");
+        //Debug.Log(enterPlayer.isShop);
         uiGroup.anchoredPosition = Vector3.down * 1000;
     }
 
     public void Buy(int idx)
     {
+        if (enterPlayer == null || enterPlayer.isShop == false)
+            return;
+
         int price = itemPrice[idx];
-        if (price > enterPlayer.coin)
+
+        if (price > enterPlayer.coin )
         {
             StopCoroutine(Talk());
             StartCoroutine(Talk());

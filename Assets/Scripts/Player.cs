@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 
+    public GameManager manager;
     public Camera followCamera;
 
     [SerializeField] float speed = 15;
@@ -22,6 +23,7 @@ public class Player : MonoBehaviour
     bool isJump;
     bool isDodge;
     bool isBorder;
+    bool isDead = false;
 
     //player attack key
     bool fDown; //attack
@@ -32,7 +34,7 @@ public class Player : MonoBehaviour
     bool rDown; //reload gun
     bool isReload;
 
-    bool isShop;
+    public bool isShop;
 
     //weapon key
     GameObject nearByItem;
@@ -71,7 +73,7 @@ public class Player : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         meshs = GetComponentsInChildren<MeshRenderer>();
 
-        PlayerPrefs.SetInt("BestScore", 100);
+        PlayerPrefs.SetInt("BestScore", 0);
     }
 
     // Start is called before the first frame update
@@ -84,15 +86,19 @@ public class Player : MonoBehaviour
     void Update()
     {
         GetInput();
-        Move();
-        Turn();
-        Jump();
-        Dodge();
-        Swap();
-        Interaction();
-        Attack();
-        useGrenade();
-        Reload();
+        if (!isDead)
+        {
+            Move();
+            Turn();
+            Jump();
+            Dodge();
+            Swap();
+            Interaction();
+            Attack();
+            useGrenade();
+            Reload();
+        }
+
     }
 
     void FixedUpdate()
@@ -165,7 +171,7 @@ public class Player : MonoBehaviour
 
     void Jump()
     {
-        if (jDown && moveVec == Vector3.zero && !isJump && !isDodge && !isSwap)
+        if (jDown && moveVec == Vector3.zero && !isJump && !isDodge && !isSwap && !isShop)
         {
             rigid.AddForce(Vector3.up * 15, ForceMode.Impulse);
             isJump = true;
@@ -356,8 +362,8 @@ public class Player : MonoBehaviour
         else if (other.tag == "Shop")
         {
             Shop shop = nearByItem.GetComponent<Shop>();
-            shop.Exit();
             isShop = false;
+            shop.Exit();
             nearByItem = null;
         }
     }
@@ -404,6 +410,10 @@ public class Player : MonoBehaviour
                 Bullets enemyBullet = other.GetComponent<Bullets>();
                 health -= enemyBullet.damage;
 
+                if (health < 0)
+                    health = 0;
+
+
                 bool isBossAttack = other.name == "Boss Melee Area";
 
                 StartCoroutine(OnDamage(isBossAttack));
@@ -432,6 +442,11 @@ public class Player : MonoBehaviour
             rigid.AddForce(transform.forward * -25, ForceMode.Impulse);
         }
 
+        if (health <= 0 && !isDead)
+        {
+            OnDie();
+        }
+
         yield return new WaitForSeconds(1f);
 
         isDamage = false;
@@ -445,5 +460,13 @@ public class Player : MonoBehaviour
             rigid.velocity = Vector3.zero;
         }
 
+
+    }
+
+    void OnDie()
+    {
+        anim.SetTrigger("doDie");
+        manager.GameOver();
     }
 }
+

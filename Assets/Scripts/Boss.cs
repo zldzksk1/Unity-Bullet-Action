@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Boss : Enemys
+public class Boss : Enemies
 {
     public GameObject missile;
     public Transform positionA;

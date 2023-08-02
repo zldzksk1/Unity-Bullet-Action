@@ -26,7 +26,7 @@ public class Grenade : MonoBehaviour
 
         foreach (RaycastHit hitObj in rayHits)
         {
-            hitObj.transform.GetComponent<Enemys>().HitByGrenade(transform.position);
+            hitObj.transform.GetComponent<Enemies>().HitByGrenade(transform.position);
         }
 
         Destroy(gameObject, 5);
