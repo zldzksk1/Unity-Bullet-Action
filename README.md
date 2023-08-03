@@ -13,7 +13,7 @@ Language: C#
 
 # Game Images
 Game Main Screen <br>
-![game image1](https://github.com/zldzksk1/Unity-Bullet-Action/tree/main/Images/Image001.png)
+![game image1](https://github.com/zldzksk1/Unity-Bullet-Action/blob/main/Images/Image001.png)
 
 In game stores <br>
 ![game menu1](https://github.com/zldzksk1/Unity-Bullet-Action/tree/main/Images/Image002.png)
