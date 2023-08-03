@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
     public RectTransform bossHealthGroup;
     public RectTransform bossHealthBar;
 
+    public TMP_Text notification;
+
     public GameObject itemShop;
     public GameObject weaponShop;
     public GameObject stageZone;
@@ -54,7 +56,10 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         enemyList = new List<int>();
-        bestScoreTxt.text = string.Format("{0:n0}", PlayerPrefs.GetInt("BestScore"));    
+        bestScoreTxt.text = string.Format("{0:n0}", PlayerPrefs.GetInt("BestScore"));
+
+        if (PlayerPrefs.HasKey("BestScore"))
+            PlayerPrefs.SetInt("BestScore", 0);
     }
 
     public void GameStart()
@@ -113,9 +118,9 @@ public class GameManager : MonoBehaviour
         grenadeImg.color = new Color(1, 1, 1, player.hasGrenades > 0 ? 1 : 0);
 
         //nums of monster you have killed
-        EnemyTxtA.text = enemyCountA.ToString();
-        EnemyTxtB.text = enemyCountB.ToString();
-        EnemyTxtC.text = enemyCountC.ToString();
+        EnemyTxtA.text = "X  " + enemyCountA.ToString();
+        EnemyTxtB.text = "X  " + enemyCountB.ToString();
+        EnemyTxtC.text = "X  " + enemyCountC.ToString();
 
         //boss healthbar indicator
         if (boss != null)
@@ -126,6 +131,29 @@ public class GameManager : MonoBehaviour
         else
         {
             bossHealthGroup.anchoredPosition = Vector3.up * 300;
+        }
+
+    }
+
+    public void updateNotification(bool isTimer, int number)
+    {
+        if (isTimer && number >= 0)
+        {
+            notification.text = "STAGE START IN " + number;
+
+            if (number < 1)
+            {
+                notification.text = "START!";
+            }
+        }
+        else if (!isTimer && number >= 0)
+        {
+            notification.text = "PRESS E";
+        }
+
+        else if (!isTimer)
+        {
+            notification.text = "";
         }
 
     }
@@ -143,6 +171,7 @@ public class GameManager : MonoBehaviour
 
         isBattle = true;
         StartCoroutine(InBattle());
+
     }
 
     public void StageEnd()
@@ -184,7 +213,10 @@ public class GameManager : MonoBehaviour
     IEnumerator InBattle()
     {
         //enemy create
- 
+//        yield return new WaitForSeconds(1f);
+
+        updateNotification(false, -1);
+
         if (stage % 5 == 0)
         {
             enemyCountD++;

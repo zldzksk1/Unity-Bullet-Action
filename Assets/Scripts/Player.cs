@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     bool isDodge;
     bool isBorder;
     bool isDead = false;
+    bool isNotiUpdated = false;
 
     //player attack key
     bool fDown; //attack
@@ -331,7 +332,11 @@ public class Player : MonoBehaviour
                 isShop = true;
                 Shop shop = nearByItem.GetComponent<Shop>();
                 shop.Enter(this);
+                isNotiUpdated = true;
             }
+
+            manager.updateNotification(false, -1);
+
         }
     }
 
@@ -349,10 +354,10 @@ public class Player : MonoBehaviour
         if (other.tag == "Weapon" || other.tag == "Shop")
         {
             nearByItem = other.gameObject;
+            if(!isNotiUpdated)
+                manager.updateNotification(false, 0);
             //Debug.Log(nearByItem.name);
         }
-
-
     }
 
     private void OnTriggerExit(Collider other)
@@ -366,6 +371,9 @@ public class Player : MonoBehaviour
             shop.Exit();
             nearByItem = null;
         }
+
+        manager.updateNotification(false, -1);
+        isNotiUpdated = false;
     }
 
     private void OnTriggerEnter(Collider other)
