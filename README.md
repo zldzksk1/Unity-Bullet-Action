@@ -16,10 +16,11 @@ Game Main Screen <br>
 ![game image1](https://github.com/zldzksk1/Unity-Bullet-Action/blob/main/Images/Image001.png)
 
 In game stores <br>
-![game menu1](https://github.com/zldzksk1/Unity-Bullet-Action/tree/main/Images/Image002.png)
-![game menu2](https://github.com/zldzksk1/Unity-Bullet-Action/tree/main/Images/Image003.png)
+<img src="https://github.com/zldzksk1/Unity-Bullet-Action/blob/main/Images/Image002.png" alt="game menu1" style="width: 49%; height: auto;">
+<img src="https://github.com/zldzksk1/Unity-Bullet-Action/blob/main/Images/Image003.png" alt="game menu2" style="width: 49%; height: auto;">
+
 
 Dynamic Gameplay<br>
-![play image1](https://github.com/zldzksk1/Unity-Bullet-Action/tree/main/Images/gameImg001.png)
-![play image2](https://github.com/zldzksk1/Unity-Bullet-Action/tree/main/Images/gameImg002.png)
-![play image3](https://github.com/zldzksk1/Unity-Bullet-Action/tree/main/Images/gameImg003.png)
+<img src="https://github.com/zldzksk1/Unity-Bullet-Action/blob/main/Images/gameImg%20001.png" alt="play1" style="width: 33%; height: auto;">
+<img src="https://github.com/zldzksk1/Unity-Bullet-Action/blob/main/Images/gameImg%20002.png" alt="play2" style="width: 33%; height: auto;">
+<img src="https://github.com/zldzksk1/Unity-Bullet-Action/blob/main/Images/gameImg%20003.png" alt="play3" style="width: 33%; height: auto;">
