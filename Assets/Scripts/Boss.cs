@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public class Boss : Enemies
 {
+
     public GameObject missile;
     public Transform positionA;
     public Transform positionB;
@@ -13,7 +14,9 @@ public class Boss : Enemies
     Vector3 tauntVec;
     bool isLook = true;
 
-    float aiLevel = 1;
+    //boss ai difficulty level
+    static int level = 0;
+    float aiLevel = 0.7f;
     // 상속받아서 작성할 경우 Awake는 child script꺼만 작동됨
     // 해결방법은, awake코드를 그대로 복사해서 child script에 넣어주거나
     // parent script에서 awake를 start로 바꿔주면 됨
@@ -25,6 +28,9 @@ public class Boss : Enemies
         meshs = GetComponentsInChildren<MeshRenderer>();
         nav = GetComponent<NavMeshAgent>();
         anim = GetComponentInChildren<Animator>();
+
+        level++;
+        aiLevel /= level;
 
         nav.isStopped = true;
         StartCoroutine(Processing());
@@ -54,11 +60,12 @@ public class Boss : Enemies
 
     IEnumerator Processing()
     {
-        aiLevel = aiLevel / manager.stage; 
+
         //생각하는 시간이 길어질 수록 보스가 쉬워짐
         yield return new WaitForSeconds(aiLevel);
 
         int ranAction = Random.Range(0, 5);
+        Debug.Log(ranAction);
         switch (ranAction)
         {
             case 0:
